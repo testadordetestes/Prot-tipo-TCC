@@ -48,17 +48,20 @@ body {
   text-decoration: none;
   display: inline-block;
   font-size: 0.95rem;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 .botao-primario, button[type='submit'] {
   background: var(--cor-primaria);
   color: white;
 }
 .botao-primario:hover, button[type='submit']:hover { background: var(--cor-primaria-hover); }
+.botao-primario:disabled, button[type='submit']:disabled { opacity: 0.5; cursor: not-allowed; }
 .botao-secundario {
   background: transparent;
   color: var(--cor-primaria);
   border: 1px solid var(--cor-primaria);
 }
+.botao-secundario:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .tela-auth {
   max-width: 380px;
@@ -79,10 +82,7 @@ body {
 }
 .erro { color: var(--cor-erro); font-size: 0.85rem; margin: 0; padding: 0; list-style: none; }
 
-.app-shell-autenticado {
-  display: flex;
-  min-height: 100vh;
-}
+.app-shell-autenticado { display: flex; min-height: 100vh; }
 .barra-lateral {
   width: 220px;
   background: var(--cor-superficie);
@@ -102,18 +102,8 @@ body {
   opacity: 0.75;
   font-size: 0.9rem;
 }
-.barra-lateral nav a.ativo, .barra-lateral nav a:hover {
-  background: var(--cor-primaria);
-  color: white;
-  opacity: 1;
-}
-.barra-lateral-rodape {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
+.barra-lateral nav a.ativo, .barra-lateral nav a:hover { background: var(--cor-primaria); color: white; opacity: 1; }
+.barra-lateral-rodape { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; }
 .barra-lateral-rodape button {
   background: transparent;
   border: 1px solid var(--cor-borda);
@@ -122,19 +112,50 @@ body {
   cursor: pointer;
   color: var(--cor-texto);
 }
-.conteudo-principal {
-  flex: 1;
-  padding: 2rem;
-}
-.pagina-placeholder {
-  max-width: 640px;
-}
-.carregando-tela {
+.conteudo-principal { flex: 1; padding: 2rem; }
+.pagina-placeholder { max-width: 640px; display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+.carregando-tela { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+.jornada-etapas { display: grid; gap: 1rem; margin-top: 0.5rem; width: 100%; }
+.jornada-card {
+  border: 1px solid var(--cor-borda);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--cor-superficie);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: opacity 0.2s ease;
 }
+.jornada-card-bloqueada { opacity: 0.55; }
+.jornada-card-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.jornada-card-cabecalho h2 { margin: 0; font-size: 1.1rem; }
+.jornada-selo { font-size: 0.75rem; background: var(--cor-primaria); color: white; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+.jornada-selo-bloqueada { background: var(--cor-borda); color: var(--cor-texto); }
+
+.barra-progresso { height: 8px; border-radius: 999px; background: var(--cor-borda); overflow: hidden; }
+.barra-progresso-preenchida { height: 100%; background: var(--cor-primaria); transition: width 0.3s ease; }
+
+.quiz-etapa { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; width: 100%; }
+.quiz-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.quiz-cabecalho h1 { margin: 0; font-size: 1.15rem; }
+.quiz-voltar-link { text-decoration: none; color: var(--cor-primaria); font-size: 0.9rem; }
+.quiz-enunciado { font-size: 1.25rem; font-weight: 600; margin: 0; }
+.quiz-alternativas { display: flex; flex-direction: column; gap: 0.6rem; }
+.quiz-alternativa {
+  text-align: left;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.quiz-alternativa:hover { border-color: var(--cor-primaria); }
+.quiz-alternativa.selecionada { border-color: var(--cor-primaria); background: var(--cor-primaria); color: white; transform: scale(1.01); }
+.quiz-navegacao { display: flex; justify-content: space-between; }
 
 @media (max-width: 720px) {
   .app-shell-autenticado { flex-direction: column; }

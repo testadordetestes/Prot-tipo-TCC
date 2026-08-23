@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes.js'
+import questionarioRoutes from './routes/questionario.routes.js'
 
 const app = express()
 
@@ -13,6 +14,7 @@ app.get('/api/health', (req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/questionario', questionarioRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ erro: 'Rota não encontrada.' })

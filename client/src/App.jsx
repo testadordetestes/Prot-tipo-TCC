@@ -6,6 +6,7 @@ import Cadastro from './pages/Cadastro.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Jornada from './pages/Jornada.jsx'
+import JornadaEtapa from './pages/JornadaEtapa.jsx'
 import Resultados from './pages/Resultados.jsx'
 import Trilha from './pages/Trilha.jsx'
 import Simulados from './pages/Simulados.jsx'
@@ -54,6 +55,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/jornada" element={<Jornada />} />
+          <Route path="/jornada/:etapa" element={<JornadaEtapa />} />
           <Route path="/resultados" element={<Resultados />} />
           <Route path="/trilha" element={<Trilha />} />
           <Route path="/simulados" element={<Simulados />} />
