@@ -7,5 +7,185 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelagem completa (usuários, áreas, questionário, simulados etc.)
-// será adicionada na etapa "Banco de dados e models" do cronograma.
+enum Etapa {
+  INTERESSES
+  HABILIDADES
+  PERFIL
+}
+
+enum Pilar {
+  INTERESSE
+  HABILIDADE
+  COMPETENCIA
+  PREFERENCIA
+}
+
+enum Faixa {
+  ALTA
+  MEDIA
+  BAIXA
+}
+
+model Usuario {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  usernameLower String   @unique
+  senhaHash     String
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  respostas          RespostaQuestionario[]
+  resultados         ResultadoArea[]
+  tentativasSimulado TentativaSimulado[]
+}
+
+model Area {
+  id        String  @id @default(cuid())
+  nome      String
+  slug      String  @unique
+  descricao String?
+  ordem     Int     @default(0)
+
+  subareas         Subarea[]
+  alternativaAreas AlternativaArea[]
+  resultados       ResultadoArea[]
+  trilhas          Trilha[]
+  simulados        Simulado[]
+}
+
+model Subarea {
+  id     String @id @default(cuid())
+  nome   String
+  slug   String @unique
+  areaId String
+  area   Area   @relation(fields: [areaId], references: [id])
+}
+
+model Pergunta {
+  id        String @id @default(cuid())
+  etapa     Etapa
+  pilar     Pilar
+  enunciado String
+  ordem     Int    @default(0)
+
+  alternativas Alternativa[]
+  respostas    RespostaQuestionario[]
+}
+
+model Alternativa {
+  id         String   @id @default(cuid())
+  perguntaId String
+  pergunta   Pergunta @relation(fields: [perguntaId], references: [id])
+  texto      String
+  valor      Int
+  ordem      Int      @default(0)
+
+  areas     AlternativaArea[]
+  respostas RespostaQuestionario[]
+}
+
+model AlternativaArea {
+  id            String      @id @default(cuid())
+  alternativaId String
+  alternativa   Alternativa @relation(fields: [alternativaId], references: [id])
+  areaId        String
+  area          Area        @relation(fields: [areaId], references: [id])
+  peso          Float       @default(1)
+
+  @@unique([alternativaId, areaId])
+}
+
+model RespostaQuestionario {
+  id            String       @id @default(cuid())
+  usuarioId     String
+  usuario       Usuario      @relation(fields: [usuarioId], references: [id])
+  perguntaId    String
+  pergunta      Pergunta     @relation(fields: [perguntaId], references: [id])
+  alternativaId String?
+  alternativa   Alternativa? @relation(fields: [alternativaId], references: [id])
+  neutra        Boolean      @default(false)
+  respondidoEm  DateTime     @default(now())
+
+  @@unique([usuarioId, perguntaId])
+}
+
+model ResultadoArea {
+  id                           String   @id @default(cuid())
+  usuarioId                    String
+  usuario                      Usuario  @relation(fields: [usuarioId], references: [id])
+  areaId                       String
+  area                         Area     @relation(fields: [areaId], references: [id])
+  score                        Float
+  faixa                        Faixa
+  interesseAltoHabilidadeBaixa Boolean  @default(false)
+  calculadoEm                  DateTime @default(now())
+
+  @@unique([usuarioId, areaId])
+}
+
+model Trilha {
+  id        String @id @default(cuid())
+  areaId    String
+  area      Area   @relation(fields: [areaId], references: [id])
+  faixa     Faixa
+  titulo    String
+  descricao String
+  conteudo  String
+}
+
+model Simulado {
+  id        String  @id @default(cuid())
+  areaId    String?
+  area      Area?   @relation(fields: [areaId], references: [id])
+  tipo      String
+  titulo    String
+  descricao String?
+
+  questoes   QuestaoSimulado[]
+  tentativas TentativaSimulado[]
+}
+
+model QuestaoSimulado {
+  id         String   @id @default(cuid())
+  simuladoId String
+  simulado   Simulado @relation(fields: [simuladoId], references: [id])
+  enunciado  String
+  ordem      Int      @default(0)
+
+  alternativas AlternativaSimulado[]
+  respostas    RespostaSimulado[]
+}
+
+model AlternativaSimulado {
+  id                String          @id @default(cuid())
+  questaoSimuladoId String
+  questao           QuestaoSimulado @relation(fields: [questaoSimuladoId], references: [id])
+  texto             String
+  correta           Boolean         @default(false)
+  explicacao        String?
+
+  respostas RespostaSimulado[]
+}
+
+model TentativaSimulado {
+  id           String    @id @default(cuid())
+  usuarioId    String
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+  simuladoId   String
+  simulado     Simulado  @relation(fields: [simuladoId], references: [id])
+  iniciadoEm   DateTime  @default(now())
+  finalizadoEm DateTime?
+  nota         Float?
+
+  respostas RespostaSimulado[]
+}
+
+model RespostaSimulado {
+  id                     String               @id @default(cuid())
+  tentativaId            String
+  tentativa              TentativaSimulado    @relation(fields: [tentativaId], references: [id])
+  questaoSimuladoId      String
+  questao                QuestaoSimulado      @relation(fields: [questaoSimuladoId], references: [id])
+  alternativaEscolhidaId String?
+  alternativaEscolhida   AlternativaSimulado? @relation(fields: [alternativaEscolhidaId], references: [id])
+}
