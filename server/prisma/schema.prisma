@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelagem completa (usuários, áreas, questionário, simulados etc.)
+// será adicionada na etapa "Banco de dados e models" do cronograma.
