@@ -19,6 +19,7 @@ function JornadaEtapa() {
   const [carregando, setCarregando] = useState(true)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
+  const [resultadoPronto, setResultadoPronto] = useState(false)
 
   useEffect(() => {
     async function carregar() {
@@ -64,6 +65,9 @@ function JornadaEtapa() {
       if (dados.progresso[etapaEnum]?.concluida) {
         definirEtapaConcluida(etapa)
       }
+      if (dados.resultadoCalculado) {
+        setResultadoPronto(true)
+      }
     } catch (erroRequisicao) {
       setErro(erroRequisicao.dados?.erro || erroRequisicao.message)
     } finally {
@@ -74,6 +78,8 @@ function JornadaEtapa() {
   function avancar() {
     if (indiceAtual < perguntas.length - 1) {
       setIndiceAtual((i) => i + 1)
+    } else if (resultadoPronto) {
+      navigate('/resultados')
     } else {
       navigate('/jornada')
     }

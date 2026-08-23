@@ -6,6 +6,7 @@ import {
   listarPerguntasEtapa,
   registrarResposta,
 } from '../services/questionario.service.js'
+import { calcularResultados } from '../services/resultados.service.js'
 
 const router = Router()
 
@@ -48,7 +49,14 @@ router.post('/resposta', async (req, res) => {
 
   try {
     const progresso = await registrarResposta(req.usuarioId, perguntaId, alternativaId)
-    res.json({ progresso })
+
+    let resultadoCalculado = false
+    if (progresso.PERFIL?.concluida) {
+      await calcularResultados(req.usuarioId)
+      resultadoCalculado = true
+    }
+
+    res.json({ progresso, resultadoCalculado })
   } catch (erro) {
     res.status(erro.status || 500).json({ erro: erro.message })
   }

@@ -43,10 +43,16 @@ function Jornada() {
     return progresso?.[anteriorChave]?.concluida ? 'disponivel' : 'bloqueada'
   }
 
+  const jornadaCompleta = progresso?.PERFIL?.concluida
+
   return (
     <div className="pagina-placeholder">
       <h1>Sua Jornada</h1>
       <p>Responda as 3 etapas, na ordem, para descobrir suas áreas com mais compatibilidade.</p>
+
+      {jornadaCompleta && (
+        <Link to="/resultados" className="botao-primario">Ver meus resultados</Link>
+      )}
 
       <div className="jornada-etapas">
         {ETAPAS.map((etapa, indice) => {
