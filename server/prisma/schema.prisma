@@ -27,12 +27,14 @@ enum Faixa {
 }
 
 model Usuario {
-  id            String   @id @default(cuid())
-  username      String   @unique
-  usernameLower String   @unique
+  id            String    @id @default(cuid())
+  username      String    @unique
+  usernameLower String    @unique
   senhaHash     String
-  criadoEm      DateTime @default(now())
-  atualizadoEm  DateTime @updatedAt
+  falhasLogin   Int       @default(0)
+  bloqueadoAte  DateTime?
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
 
   respostas          RespostaQuestionario[]
   resultados         ResultadoArea[]

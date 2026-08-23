@@ -1,6 +1,6 @@
 # Protótipo TCC — Plataforma de Orientação Vocacional
 
-**Versão: 0.2**
+**Versão: 0.3**
 
 Protótipo full-stack construído como teste comparativo (Claude vs GPT) para o TCC do CEDUP 2026.
 
@@ -22,30 +22,27 @@ Esse guia assume que você não tem nada instalado ainda. Se algum passo já est
 ### Passo 1 — Instalar o Node.js
 
 1. Acesse https://nodejs.org
-2. Baixe a versão **LTS** (recomendada) — no protótipo, foi testado com Node 20.
-3. Instale normalmente (next, next, finish).
-4. Confirme que funcionou abrindo o terminal e rodando:
+2. Baixe a versão **LTS** — testado com Node 20.
+3. Instale normalmente.
+4. Confirme rodando:
    ```
    node -v
    npm -v
    ```
-   Deve aparecer um número de versão em cada comando (ex: `v20.x.x`).
 
 ### Passo 2 — Instalar o PostgreSQL
 
 **Windows:**
-1. Acesse https://www.postgresql.org/download/windows/
-2. Baixe o instalador e execute.
-3. Durante a instalação, ele vai pedir uma **senha para o usuário `postgres`** — anote essa senha, você vai precisar dela.
-4. Deixe a porta padrão (**5432**).
-5. No final, ele pode abrir o "Stack Builder" — pode fechar, não precisa dele.
+1. https://www.postgresql.org/download/windows/
+2. Baixe e execute o instalador.
+3. Anote a senha do usuário `postgres` definida na instalação.
+4. Deixe a porta padrão (5432).
 
 **macOS:**
 ```
 brew install postgresql@16
 brew services start postgresql@16
 ```
-(Se não tiver o Homebrew, instale antes em https://brew.sh)
 
 **Linux (Ubuntu/Debian):**
 ```
@@ -54,32 +51,20 @@ sudo apt install postgresql postgresql-contrib
 sudo systemctl start postgresql
 ```
 
-### Passo 3 — Criar o banco de dados do projeto
+### Passo 3 — Criar o banco de dados
 
-**Opção A — via terminal (psql):**
+**Via terminal (psql):**
+```
+psql -U postgres
+```
+```sql
+CREATE DATABASE prototipo_tcc;
+CREATE USER prototipo_user WITH ENCRYPTED PASSWORD 'escolha_uma_senha_aqui';
+GRANT ALL PRIVILEGES ON DATABASE prototipo_tcc TO prototipo_user;
+\q
+```
 
-1. Abra o terminal e entre no psql:
-   - Windows: procure "SQL Shell (psql)" no menu iniciar e abra.
-   - Mac/Linux: rode `psql -U postgres` (ou `sudo -u postgres psql` no Linux, se pedir permissão).
-2. Vai pedir a senha do usuário `postgres` — digite a que você definiu no Passo 2.
-3. Dentro do psql (o prompt vira algo tipo `postgres=#`), rode, uma linha por vez:
-   ```sql
-   CREATE DATABASE prototipo_tcc;
-   CREATE USER prototipo_user WITH ENCRYPTED PASSWORD 'escolha_uma_senha_aqui';
-   GRANT ALL PRIVILEGES ON DATABASE prototipo_tcc TO prototipo_user;
-   ```
-4. Saia do psql:
-   ```sql
-   \q
-   ```
-
-**Opção B — via pgAdmin (interface gráfica, se você instalou junto no Windows):**
-
-1. Abra o pgAdmin, conecte no servidor local (senha do `postgres`).
-2. Clique com botão direito em "Databases" → "Create" → "Database".
-3. Nome: `prototipo_tcc`. Salvar.
-4. Clique com botão direito em "Login/Group Roles" → "Create" → "Login/Group Role". Nome: `prototipo_user`, aba "Definition" define a senha, aba "Privileges" liga "Can login?".
-5. Volte no banco `prototipo_tcc` → Properties → aba "Security" → adicione `prototipo_user` com todos os privilégios.
+**Via pgAdmin:** crie o banco `prototipo_tcc`, crie o usuário `prototipo_user` com senha e login habilitado, e conceda privilégios completos a ele sobre o banco.
 
 ### Passo 4 — Configurar e rodar o backend (server)
 
@@ -88,40 +73,21 @@ cd server
 cp .env.example .env
 ```
 
-Abra o arquivo `server/.env` e ajuste a linha `DATABASE_URL` com o usuário/senha que você criou no Passo 3:
-
+Ajuste `DATABASE_URL` no `.env` com seu usuário/senha:
 ```
 DATABASE_URL="postgresql://prototipo_user:escolha_uma_senha_aqui@localhost:5432/prototipo_tcc?schema=public"
 ```
 
-O `JWT_SECRET` pode ser qualquer texto longo e aleatório por enquanto (ex: `troque-por-um-texto-aleatorio-grande-123`).
-
-Agora instale as dependências e crie as tabelas no banco:
+`JWT_SECRET` pode ser qualquer texto longo aleatório. `SESSAO_DURACAO_MINUTOS` controla quanto tempo de inatividade derruba a sessão (padrão: 30).
 
 ```
 npm install
 npx prisma migrate dev --name init
-```
-
-Esse comando lê o `prisma/schema.prisma` e cria todas as tabelas no banco `prototipo_tcc` automaticamente. Se der certo, você vai ver uma mensagem confirmando a migration.
-
-Agora popule o banco com as áreas profissionais (dado inicial necessário pro sistema funcionar):
-
-```
 npm run db:seed
-```
-
-Por fim, suba o servidor:
-
-```
 npm run dev
 ```
 
-Deve aparecer `Servidor rodando na porta 3333` no terminal.
-
 ### Passo 5 — Configurar e rodar o frontend (client)
-
-Em outro terminal (deixe o do backend rodando):
 
 ```
 cd client
@@ -130,31 +96,53 @@ npm install
 npm run dev
 ```
 
-### Passo 6 — Testar se está tudo funcionando
+### Passo 6 — Testar
 
-- Acesse **http://localhost:5173** → deve aparecer a tela inicial do protótipo.
-- Acesse **http://localhost:3333/api/health** → deve retornar `{"status":"ok"}`.
+- **http://localhost:5173** → tela inicial
+- **http://localhost:3333/api/health** → `{"status":"ok"}`
 
-Se os dois funcionarem, está tudo certo.
+---
+
+## Atualizando o projeto após puxar uma nova versão
+
+Sempre que o `schema.prisma` mudar entre versões (como aconteceu agora, na 0.3), rode dentro de `server/`:
+```
+npx prisma migrate dev
+```
+Isso aplica as mudanças novas no seu banco local sem apagar os dados existentes.
+
+---
+
+## Endpoints disponíveis (versão 0.3)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/health` | Verifica se o servidor está no ar |
+| GET | `/api/auth/captcha` | Gera um captcha simples (soma de dois números) |
+| POST | `/api/auth/cadastro` | Cria um usuário novo (`username`, `senha`) |
+| POST | `/api/auth/login` | Login (`username`, `senha`, e `captchaToken`/`captchaResposta` a partir da 2ª tentativa errada) |
+| GET | `/api/auth/me` | Retorna o usuário autenticado (precisa do header `Authorization: Bearer <token>`) |
+
+**Regras de segurança implementadas:**
+- Senha nunca armazenada em texto puro (bcrypt, 10 salt rounds).
+- Nome de usuário único e case-insensitive.
+- A partir da 2ª tentativa de login incorreta, passa a exigir captcha.
+- Após 5 tentativas incorretas, a conta fica bloqueada por 15 minutos.
+- Sessão (JWT) com expiração deslizante: toda requisição autenticada válida renova o prazo, então só expira por inatividade real.
 
 ---
 
 ## Problemas comuns (troubleshooting)
 
-**"psql: command not found"**
-O PostgreSQL não foi adicionado ao PATH do sistema. No Windows, procure a pasta de instalação (ex: `C:\Program Files\PostgreSQL\16\bin`) e adicione ao PATH, ou use o "SQL Shell (psql)" que já vem configurado.
+**"psql: command not found"** — adicione o PostgreSQL ao PATH ou use o "SQL Shell (psql)" do menu iniciar (Windows).
 
-**"password authentication failed for user"**
-Senha errada no `.env` ou no comando `CREATE USER`. Confira se digitou a mesma senha nos dois lugares.
+**"password authentication failed for user"** — senha errada no `.env` ou no `CREATE USER`.
 
-**"connection refused" / "could not connect to server"**
-O serviço do PostgreSQL não está rodando. No Windows, procure "Services" e veja se "postgresql-x64-16" está como "Running". No Mac: `brew services start postgresql@16`. No Linux: `sudo systemctl start postgresql`.
+**"connection refused"** — serviço do Postgres não está rodando.
 
-**"port 5432 already in use"**
-Já existe outro PostgreSQL rodando na mesma porta. Pode parar o outro serviço ou mudar a porta no `.env` (ex: `:5433`) e na instalação.
+**"port 5432 already in use"** — outro Postgres já está na mesma porta.
 
-**Erro do Prisma tipo "P1001" ou "Can't reach database server"**
-O banco não está acessível com os dados do `.env`. Revise usuário, senha, porta e se o serviço do Postgres está mesmo rodando.
+**Erro do Prisma "P1001"** — banco inacessível com os dados do `.env`.
 
 ---
 
@@ -162,19 +150,23 @@ O banco não está acessível com os dados do `.env`. Revise usuário, senha, po
 
 ```
 client/          → frontend (React)
-server/          → backend (Express + Prisma)
+server/
   ├─ prisma/
-  │   ├─ schema.prisma   → modelagem do banco de dados
-  │   └─ seed.js          → popula áreas profissionais iniciais
+  │   ├─ schema.prisma
+  │   └─ seed.js
   └─ src/
-      └─ index.js          → ponto de entrada do servidor
+      ├─ index.js
+      ├─ lib/            → prisma.js, captchaStore.js
+      ├─ middlewares/    → auth.js
+      ├─ routes/         → auth.routes.js
+      └─ utils/          → usuario.js
 ```
 
-## Status do protótipo (versão 0.2)
+## Status do protótipo (versão 0.3)
 
 **Concluído:**
-- Estrutura inicial do projeto (client + server)
-- Modelagem completa do banco de dados (usuários, áreas, questionário, resultados, trilhas, simulados)
-- Seed com as 14 áreas profissionais e subcategorias
+- Estrutura inicial do projeto
+- Modelagem completa do banco de dados + seed das 14 áreas
+- Autenticação: cadastro, login, captcha, bloqueio por tentativas, sessão deslizante
 
-**Próxima etapa:** autenticação e controle de acesso (cadastro/login com hash de senha e JWT).
+**Próxima etapa:** estrutura base do frontend e navegação (React Router + Zustand + telas iniciais).

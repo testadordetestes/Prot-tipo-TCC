@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import authRoutes from './routes/auth.routes.js'
 
 const app = express()
 
@@ -9,6 +10,18 @@ app.use(express.json())
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
+})
+
+app.use('/api/auth', authRoutes)
+
+app.use((req, res) => {
+  res.status(404).json({ erro: 'Rota não encontrada.' })
+})
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err)
+  res.status(500).json({ erro: 'Algo deu errado no servidor.' })
 })
 
 const PORT = process.env.PORT || 3333
