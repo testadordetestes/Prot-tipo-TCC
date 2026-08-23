@@ -164,6 +164,29 @@ body {
 .resultado-trilha strong { display: block; margin-bottom: 0.25rem; }
 .resultado-trilha p { margin: 0; opacity: 0.8; }
 
+.simulados-lista { display: grid; gap: 1rem; width: 100%; margin-top: 0.5rem; }
+.simulado-card {
+  border: 1px solid var(--cor-borda);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--cor-superficie);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.simulado-card-bloqueado { opacity: 0.55; }
+.simulado-card-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.simulado-card-cabecalho h3 { margin: 0; font-size: 1rem; }
+.simulado-card-rodape { display: flex; gap: 1rem; font-size: 0.8rem; opacity: 0.75; }
+
+.simulado-gabarito { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; }
+.simulado-gabarito-item { display: flex; flex-direction: column; gap: 0.4rem; }
+.simulado-alternativa-resultado { border: 1px solid var(--cor-borda); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.9rem; }
+.simulado-alternativa-resultado p { margin: 0; }
+.simulado-alternativa-correta { border-color: #2e7d32; background: rgba(46, 125, 50, 0.1); }
+.simulado-alternativa-errada { border-color: var(--cor-erro); background: rgba(230, 57, 70, 0.08); }
+.simulado-explicacao { font-size: 0.8rem; opacity: 0.75; margin-top: 0.25rem !important; }
+
 @media (max-width: 720px) {
   .app-shell-autenticado { flex-direction: column; }
   .barra-lateral { width: 100%; flex-direction: row; align-items: center; overflow-x: auto; gap: 1rem; }

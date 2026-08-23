@@ -185,7 +185,7 @@ model TentativaSimulado {
 model RespostaSimulado {
   id                     String               @id @default(cuid())
   tentativaId            String
-  tentativa              TentativaSimulado    @relation(fields: [tentativaId], references: [id])
+  tentativa              TentativaSimulado    @relation(fields: [tentativaId], references: [id], onDelete: Cascade)
   questaoSimuladoId      String
   questao                QuestaoSimulado      @relation(fields: [questaoSimuladoId], references: [id])
   alternativaEscolhidaId String?

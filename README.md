@@ -1,8 +1,11 @@
 # Protótipo TCC — Plataforma de Orientação Vocacional
 
-**Versão: 0.6**
-
 Protótipo full-stack construído como teste comparativo (Claude vs GPT) para o TCC do CEDUP 2026.
+
+Este é o guia de **instalação do zero**, pra quando você estiver configurando o projeto num computador novo pela primeira vez. Ele não muda a cada versão — só quando algo estrutural muda de verdade (nova dependência, novo passo de instalação etc.).
+
+- Pra saber **o que rodar depois de puxar uma atualização** (migrations, seeds novos), veja `README-ATUALIZACAO.md`.
+- Pra saber **como subir o projeto num dia normal** (ambiente já configurado), veja `README-INICIALIZACAO.md`.
 
 ## Sobre o projeto
 
@@ -17,15 +20,40 @@ Plataforma de orientação vocacional para estudantes do ensino médio: question
 
 ## Guia completo para rodar localmente (do zero)
 
-### Passo 1 — Node.js
-https://nodejs.org (versão LTS). Confirme com `node -v` e `npm -v`.
+### Passo 1 — Instalar o Node.js
+1. Acesse https://nodejs.org
+2. Baixe a versão **LTS** (testado com Node 20).
+3. Instale normalmente.
+4. Confirme rodando:
+   ```
+   node -v
+   npm -v
+   ```
 
-### Passo 2 — PostgreSQL
-**Windows:** https://www.postgresql.org/download/windows/ (anote a senha do usuário `postgres`).
-**macOS:** `brew install postgresql@16 && brew services start postgresql@16`
-**Linux:** `sudo apt install postgresql postgresql-contrib && sudo systemctl start postgresql`
+### Passo 2 — Instalar o PostgreSQL
 
-### Passo 3 — Criar o banco
+**Windows:**
+1. https://www.postgresql.org/download/windows/
+2. Baixe e execute o instalador.
+3. Anote a senha do usuário `postgres` definida na instalação.
+4. Deixe a porta padrão (5432).
+
+**macOS:**
+```
+brew install postgresql@16
+brew services start postgresql@16
+```
+
+**Linux (Ubuntu/Debian):**
+```
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+```
+
+### Passo 3 — Criar o banco de dados
+
+**Via terminal (psql):**
 ```
 psql -U postgres
 ```
@@ -36,21 +64,33 @@ GRANT ALL PRIVILEGES ON DATABASE prototipo_tcc TO prototipo_user;
 \q
 ```
 
-### Passo 4 — Backend
+**Via pgAdmin:** crie o banco `prototipo_tcc`, crie o usuário `prototipo_user` com senha e login habilitado, e conceda privilégios completos a ele sobre o banco.
+
+### Passo 4 — Configurar e rodar o backend (server)
+
 ```
 cd server
 cp .env.example .env
 ```
-Ajuste `DATABASE_URL` com seu usuário/senha.
+
+Ajuste `DATABASE_URL` no `.env` com seu usuário/senha:
+```
+DATABASE_URL="postgresql://prototipo_user:escolha_uma_senha_aqui@localhost:5432/prototipo_tcc?schema=public"
+```
+
+`JWT_SECRET` pode ser qualquer texto longo aleatório. `SESSAO_DURACAO_MINUTOS` controla quanto tempo de inatividade derruba a sessão (padrão: 30).
+
 ```
 npm install
 npx prisma migrate dev --name init
 npm run db:seed
 npm run dev
 ```
-`npm run db:seed` roda 3 arquivos em sequência: áreas → perguntas do questionário → trilhas. Seguro rodar de novo a qualquer momento.
 
-### Passo 5 — Frontend
+`npm run db:seed` popula o banco com: as 14 áreas profissionais, as 36 perguntas do questionário, as 42 trilhas (14 áreas × 3 faixas) e os 15 simulados. É seguro rodar de novo a qualquer momento.
+
+### Passo 5 — Configurar e rodar o frontend (client)
+
 ```
 cd client
 cp .env.example .env
@@ -59,46 +99,26 @@ npm run dev
 ```
 
 ### Passo 6 — Testar
-- **http://localhost:5173** → landing, cadastro, Jornada
-- Complete as 3 etapas → ao terminar a última pergunta, você é levado direto pra aba **Resultados**
+
+- **http://localhost:5173** → landing page do protótipo
+- Crie uma conta, faça a Jornada completa e confira Resultados e Simulados
 - **http://localhost:3333/api/health** → `{"status":"ok"}`
-
----
-
-## Atualizando após puxar uma nova versão
-Se o `schema.prisma` mudou, rode `npx prisma migrate dev`. Nesta versão (0.6) o schema não mudou, mas há um seed novo (trilhas) — rode `npm run db:seed` de novo.
-
----
-
-## O que tem nessa versão (0.6)
-
-- **Fórmula de compatibilidade rodando de verdade:** `Interesse × 0,35 + Habilidade × 0,35 + Competência × 0,20 + Preferência × 0,10`, calculada automaticamente assim que a última etapa (Perfil) é concluída.
-- **3 faixas de visibilidade:** score ≥ 60 aparece em destaque, 40–59 fica atrás de "ver mais", abaixo de 40 não aparece.
-- **Seção separada "Áreas a desenvolver":** quando interesse ≥ 70 e habilidade ≤ 30 numa área, ela sai do ranking normal e cai numa seção própria, com mensagem específica.
-- **Trilhas geradas para as 14 áreas × 3 faixas** (42 no total), cada uma com título, descrição e conteúdo personalizado com o nome da área e suas sub-áreas.
-- **Página de Resultados completa:** destaque, "ver mais" expansível, e áreas a desenvolver, cada uma com sua trilha.
-- Ao concluir a jornada, o sistema redireciona automaticamente pra Resultados.
-
----
-
-## Endpoints da API
-
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | `/api/health` | Verifica se o servidor está no ar |
-| GET/POST | `/api/auth/*` | Cadastro, login, captcha, `/me` |
-| GET/POST | `/api/questionario/*` | Progresso, perguntas por etapa, registrar resposta |
-| GET | `/api/resultados` | Resultados calculados (destaque, ver mais, desenvolver) |
-| POST | `/api/resultados/calcular` | Força recalcular os resultados do usuário logado |
 
 ---
 
 ## Problemas comuns (troubleshooting)
 
-**"psql: command not found"** — adicione o PostgreSQL ao PATH.
-**"password authentication failed"** — senha errada no `.env`.
-**"connection refused"** — serviço do Postgres não está rodando.
-**Resultados vazios mesmo com jornada completa** — confira se rodou `npm run db:seed` após essa versão (precisa das trilhas no banco).
+**"psql: command not found"** — adicione o PostgreSQL ao PATH ou use o "SQL Shell (psql)" do menu iniciar (Windows).
+
+**"password authentication failed for user"** — senha errada no `.env` ou no `CREATE USER`.
+
+**"connection refused" / "could not connect to server"** — o serviço do PostgreSQL não está rodando.
+
+**"port 5432 already in use"** — já existe outro PostgreSQL rodando na mesma porta.
+
+**Erro do Prisma tipo "P1001"** — o banco não está acessível com os dados do `.env`.
+
+**Tela em branco no frontend** — confirme que o backend está rodando em `http://localhost:3333` e que `client/.env` aponta pra lá.
 
 ---
 
@@ -107,28 +127,16 @@ Se o `schema.prisma` mudou, rode `npx prisma migrate dev`. Nesta versão (0.6) o
 ```
 client/
   src/
-    pages/            → Landing, Login, Cadastro, Dashboard, Jornada, JornadaEtapa, Resultados...
+    pages/            → Landing, Login, Cadastro, Dashboard, Jornada, JornadaEtapa, Resultados, Simulados, SimuladoTentativa...
     components/       → RotaProtegida.jsx, layout/AppShell.jsx
     stores/           → useAuthStore, useThemeStore, usePerfilStore
     lib/              → api.js
 server/
-  prisma/             → schema.prisma, seed.js, seedQuestionario.js, seedTrilhas.js
+  prisma/             → schema.prisma, seed.js, seedQuestionario.js, seedTrilhas.js, seedSimulados.js
   src/
-    routes/           → auth.routes.js, questionario.routes.js, resultados.routes.js
-    services/         → questionario.service.js, resultados.service.js
+    routes/           → auth.routes.js, questionario.routes.js, resultados.routes.js, simulados.routes.js
+    services/         → questionario.service.js, resultados.service.js, simulados.service.js
     middlewares/      → auth.js
     lib/               → prisma.js, captchaStore.js
     utils/            → usuario.js
 ```
-
-## Status do protótipo (versão 0.6)
-
-**Concluído:**
-- Estrutura inicial do projeto
-- Banco de dados modelado + seed das 14 áreas
-- Autenticação completa
-- Estrutura base do frontend e navegação
-- Onboarding e jornada dos 3 questionários
-- Cálculo dos resultados e geração das trilhas
-
-**Próxima etapa:** simulados e histórico de tentativas.

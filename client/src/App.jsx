@@ -10,6 +10,7 @@ import JornadaEtapa from './pages/JornadaEtapa.jsx'
 import Resultados from './pages/Resultados.jsx'
 import Trilha from './pages/Trilha.jsx'
 import Simulados from './pages/Simulados.jsx'
+import SimuladoTentativa from './pages/SimuladoTentativa.jsx'
 import Preparacao from './pages/Preparacao.jsx'
 import NaoEncontrado from './pages/NaoEncontrado.jsx'
 import RotaProtegida from './components/RotaProtegida.jsx'
@@ -59,6 +60,7 @@ function App() {
           <Route path="/resultados" element={<Resultados />} />
           <Route path="/trilha" element={<Trilha />} />
           <Route path="/simulados" element={<Simulados />} />
+          <Route path="/simulados/:id" element={<SimuladoTentativa />} />
           <Route path="/preparacao" element={<Preparacao />} />
         </Route>
       </Route>

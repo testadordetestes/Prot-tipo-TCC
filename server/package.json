@@ -8,10 +8,10 @@
     "start": "node src/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:seed": "node prisma/seed.js && node prisma/seedQuestionario.js && node prisma/seedTrilhas.js"
+    "db:seed": "node prisma/seed.js && node prisma/seedQuestionario.js && node prisma/seedTrilhas.js && node prisma/seedSimulados.js"
   },
   "prisma": {
-    "seed": "node prisma/seed.js && node prisma/seedQuestionario.js && node prisma/seedTrilhas.js"
+    "seed": "node prisma/seed.js && node prisma/seedQuestionario.js && node prisma/seedTrilhas.js && node prisma/seedSimulados.js"
   },
   "dependencies": {
     "express": "^4.19.2",
