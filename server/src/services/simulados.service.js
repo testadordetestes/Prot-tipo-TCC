@@ -106,6 +106,15 @@ export async function registrarResposta(tentativaId, questaoSimuladoId, alternat
   }
 }
 
+// Função pura: recebe uma lista de respostas já marcadas com se foram "correta" ou não,
+// devolve nota/acertos/total. Separada do banco de propósito, pra testar sem Postgres rodando.
+export function calcularNota(respostas) {
+  const total = respostas.length
+  const acertos = respostas.filter((r) => r.correta).length
+  const nota = total > 0 ? Math.round((acertos / total) * 100) : 0
+  return { nota, acertos, total }
+}
+
 export async function finalizarTentativa(usuarioId, tentativaId) {
   const tentativa = await prisma.tentativaSimulado.findUnique({
     where: { id: tentativaId },
@@ -125,9 +134,9 @@ export async function finalizarTentativa(usuarioId, tentativaId) {
     throw erro
   }
 
-  const total = tentativa.respostas.length
-  const acertos = tentativa.respostas.filter((r) => r.alternativaEscolhida?.correta).length
-  const nota = total > 0 ? Math.round((acertos / total) * 100) : 0
+  const { nota, acertos, total } = calcularNota(
+    tentativa.respostas.map((r) => ({ correta: r.alternativaEscolhida?.correta === true }))
+  )
 
   await prisma.tentativaSimulado.update({
     where: { id: tentativaId },

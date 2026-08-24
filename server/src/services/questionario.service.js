@@ -16,15 +16,21 @@ export async function obterProgresso(usuarioId) {
   return progresso
 }
 
-export async function etapaDesbloqueada(usuarioId, etapa) {
+// Função pura: dado um objeto de progresso já calculado, diz se uma etapa está desbloqueada.
+// Separada do banco de propósito, pra testar a regra de sequência sem precisar de um Postgres rodando.
+export function calcularEtapaDesbloqueada(progresso, etapa) {
   const indice = ETAPAS_ORDEM.indexOf(etapa)
   if (indice <= 0) return true
 
-  const progresso = await obterProgresso(usuarioId)
   for (let i = 0; i < indice; i++) {
-    if (!progresso[ETAPAS_ORDEM[i]].concluida) return false
+    if (!progresso[ETAPAS_ORDEM[i]]?.concluida) return false
   }
   return true
+}
+
+export async function etapaDesbloqueada(usuarioId, etapa) {
+  const progresso = await obterProgresso(usuarioId)
+  return calcularEtapaDesbloqueada(progresso, etapa)
 }
 
 export async function listarPerguntasEtapa(usuarioId, etapa) {

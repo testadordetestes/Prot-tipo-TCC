@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
+    "test": "node --test tests/",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "db:seed": "node prisma/seed.js && node prisma/seedQuestionario.js && node prisma/seedTrilhas.js && node prisma/seedSimulados.js"

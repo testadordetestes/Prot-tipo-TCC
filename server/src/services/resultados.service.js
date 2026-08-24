@@ -6,10 +6,25 @@ const LIMIAR_VER_MAIS = 40
 const LIMIAR_INTERESSE_ALTO = 70
 const LIMIAR_HABILIDADE_BAIXA = 30
 
-function faixaPorScore(score) {
+export function faixaPorScore(score) {
   if (score >= LIMIAR_DESTAQUE) return 'ALTA'
   if (score >= LIMIAR_VER_MAIS) return 'MEDIA'
   return 'BAIXA'
+}
+
+// Função pura: recebe os 4 componentes (0-100) e devolve score/faixa/flag.
+// Isolada do banco de propósito, pra poder ser testada sem precisar de um Postgres rodando.
+export function calcularResultadoArea({ interesse, habilidade, competencia, preferencia }) {
+  const score =
+    interesse * PESOS.INTERESSE +
+    habilidade * PESOS.HABILIDADE +
+    competencia * PESOS.COMPETENCIA +
+    preferencia * PESOS.PREFERENCIA
+
+  const interesseAltoHabilidadeBaixa =
+    interesse >= LIMIAR_INTERESSE_ALTO && habilidade <= LIMIAR_HABILIDADE_BAIXA
+
+  return { score, faixa: faixaPorScore(score), interesseAltoHabilidadeBaixa }
 }
 
 export async function calcularResultados(usuarioId) {
@@ -52,26 +67,14 @@ export async function calcularResultados(usuarioId) {
       return dados.somaPonderada / dados.somaPesos
     }
 
-    const interesse = componente('INTERESSE')
-    const habilidade = componente('HABILIDADE')
-    const competencia = componente('COMPETENCIA')
-    const preferencia = componente('PREFERENCIA')
-
-    const score =
-      interesse * PESOS.INTERESSE +
-      habilidade * PESOS.HABILIDADE +
-      competencia * PESOS.COMPETENCIA +
-      preferencia * PESOS.PREFERENCIA
-
-    const interesseAltoHabilidadeBaixa =
-      interesse >= LIMIAR_INTERESSE_ALTO && habilidade <= LIMIAR_HABILIDADE_BAIXA
-
-    resultados.push({
-      areaId: area.id,
-      score,
-      faixa: faixaPorScore(score),
-      interesseAltoHabilidadeBaixa,
+    const { score, faixa, interesseAltoHabilidadeBaixa } = calcularResultadoArea({
+      interesse: componente('INTERESSE'),
+      habilidade: componente('HABILIDADE'),
+      competencia: componente('COMPETENCIA'),
+      preferencia: componente('PREFERENCIA'),
     })
+
+    resultados.push({ areaId: area.id, score, faixa, interesseAltoHabilidadeBaixa })
   }
 
   await prisma.$transaction(
@@ -135,7 +138,6 @@ export async function obterResultados(usuarioId) {
 
     if (r.faixa === 'ALTA') destaque.push(item)
     else if (r.faixa === 'MEDIA') verMais.push(item)
-    // BAIXA e não-desenvolver: não aparece, por decisão de produto
   }
 
   return { calculado: true, destaque, verMais, desenvolver }
