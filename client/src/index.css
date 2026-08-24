@@ -187,6 +187,45 @@ body {
 .simulado-alternativa-errada { border-color: var(--cor-erro); background: rgba(230, 57, 70, 0.08); }
 .simulado-explicacao { font-size: 0.8rem; opacity: 0.75; margin-top: 0.25rem !important; }
 
+.dashboard-card {
+  border: 1px solid var(--cor-borda);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--cor-superficie);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 420px;
+}
+.dashboard-grade { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); width: 100%; }
+.dashboard-destaque { font-size: 1.1rem; font-weight: 700; color: var(--cor-primaria); margin: 0; }
+
+.trilha-card {
+  border: 1px solid var(--cor-borda);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--cor-superficie);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+.trilha-card p { margin: 0; opacity: 0.85; line-height: 1.5; }
+
+.preparacao-secao { width: 100%; display: flex; flex-direction: column; gap: 0.75rem; }
+.preparacao-secao ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; margin: 0; }
+.curriculo-modelo {
+  border: 1px dashed var(--cor-borda);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: var(--cor-superficie);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.curriculo-modelo p { margin: 0; font-size: 0.9rem; }
+
 @media (max-width: 720px) {
   .app-shell-autenticado { flex-direction: column; }
   .barra-lateral { width: 100%; flex-direction: row; align-items: center; overflow-x: auto; gap: 1rem; }
