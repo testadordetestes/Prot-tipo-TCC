@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.routes.js'
 import questionarioRoutes from './routes/questionario.routes.js'
 import resultadosRoutes from './routes/resultados.routes.js'
 import simuladosRoutes from './routes/simulados.routes.js'
+import configuracoesRoutes from './routes/configuracoes.routes.js'
 
 const app = express()
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/questionario', questionarioRoutes)
 app.use('/api/resultados', resultadosRoutes)
 app.use('/api/simulados', simuladosRoutes)
+app.use('/api/configuracoes', configuracoesRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ erro: 'Rota não encontrada.' })

@@ -100,7 +100,7 @@ model AlternativaArea {
 model RespostaQuestionario {
   id            String       @id @default(cuid())
   usuarioId     String
-  usuario       Usuario      @relation(fields: [usuarioId], references: [id])
+  usuario       Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   perguntaId    String
   pergunta      Pergunta     @relation(fields: [perguntaId], references: [id])
   alternativaId String?
@@ -114,7 +114,7 @@ model RespostaQuestionario {
 model ResultadoArea {
   id                           String   @id @default(cuid())
   usuarioId                    String
-  usuario                      Usuario  @relation(fields: [usuarioId], references: [id])
+  usuario                      Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   areaId                       String
   area                         Area     @relation(fields: [areaId], references: [id])
   score                        Float
@@ -172,7 +172,7 @@ model AlternativaSimulado {
 model TentativaSimulado {
   id           String    @id @default(cuid())
   usuarioId    String
-  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   simuladoId   String
   simulado     Simulado  @relation(fields: [simuladoId], references: [id])
   iniciadoEm   DateTime  @default(now())
@@ -190,4 +190,10 @@ model RespostaSimulado {
   questao                QuestaoSimulado      @relation(fields: [questaoSimuladoId], references: [id])
   alternativaEscolhidaId String?
   alternativaEscolhida   AlternativaSimulado? @relation(fields: [alternativaEscolhidaId], references: [id])
+}
+
+model ConfiguracaoSistema {
+  id    String @id @default(cuid())
+  chave String @unique
+  valor String
 }
